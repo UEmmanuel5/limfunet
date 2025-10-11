@@ -35,7 +35,7 @@ For other variants of `G` (e.g., `G=2, G=4, G=16, G=64, and r=128`),
 download from the external link below:
 
 👉 **[Extended Weights Repository (Google Drive)](https://drive.google.com/drive/folders/1STmU7t1JpGI0tAGVPSGQO1G-Bsk9p0c5?usp=sharing)**
-**[![DOI (weights)](https://zenodo.org/badge/DOI/10.5281/zenodo.1234567.svg)](https://doi.org/10.5281/zenodo.1234567)**
+**[![DOI (weights)](https://zenodo.org/badge/DOI/10.5281/zenodo.17326783.svg)](https://doi.org/10.5281/zenodo.17326783)**
 
 The folder contains:
 

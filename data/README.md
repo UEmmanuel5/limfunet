@@ -49,7 +49,7 @@ Original data obtained from:
 - **BurnedAreaUAV, ISPRS JPRS 2023** – DOI: [10.1016/j.isprsjprs.2023.07.002](https://doi.org/10.1016/j.isprsjprs.2023.07.002)
 - **FiSmo Dataset** – [https://github.com/mtcazzolato/dsw2017](https://github.com/mtcazzolato/dsw2017)
 
-For reviewer convenience, our reorganized and preprocessed dataset is hosted at:  
+For convenience, our reorganized and preprocessed dataset is hosted at:  
 👉 **[Google Drive Link](https://drive.google.com/drive/folders/1Lb--pz32A_8yw_4Nss9LzGiWNytYHgUh?usp=sharing)**
 
 ---
