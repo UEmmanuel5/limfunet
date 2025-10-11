@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it and the associated manuscript."
+title: "LimFUNet: SE-Enhanced Ghost U-Net for Real-time Fire Segmentation"
+version: "1.0.0"
+doi: INSERT_CODE_DOI                 # e.g., 10.5281/zenodo.1234567  (release DOI)
+identifiers:
+  - type: doi
+    value: INSERT_CONCEPT_DOI        # Zenodo concept DOI (persistent across versions)
+authors:
+  - family-names: Ugwu
+    given-names: Emmanuel U.
+    affiliation: "University of Science and Technology of China"
+    email: "ugwuemmanuelugo2000@mail.ustc.edu.cn"
+  - family-names: Zhang
+    given-names: Xinming
+    affiliation: "University of Science and Technology of China"
+  - family-names: Tesfay
+    given-names: Semere G.
+    affiliation: "University of Science and Technology of China"
+  - family-names: Mehmood
+    given-names: Muhammad Hamza
+    affiliation: "University of Science and Technology of China"
+repository-code: "https://github.com/UEmmanuel5/limfunet"
+license: "Apache-2.0"      
+keywords:
+  - fire segmentation
+  - semantic segmentation
+  - lightweight networks
+  - ghost convolution
+  - squeeze-and-excitation
+date-released: 2025-10-11
+
+related-identifiers:
+  - type: doi
+    value: INSERT_WEIGHTS_DOI
+    description: "Pretrained weights for LimFUNet (mini, mid, and large variants)"
+    relation-type: isSupplementTo
+
+preferred-citation:
+  type: article
+  title: "Enhancing Real-time Fire Segmentation: LimFUNet with SE-Enhanced Ghost Convolutions for Edge Computing Applications"
+  authors:
+    - family-names: Ugwu
+      given-names: Emmanuel U.
+    - family-names: Zhang
+      given-names: Xinming
+    - family-names: Tesfay
+      given-names: Semere G.
+    - family-names: Mehmood
+      given-names: Muhammad Hamza
+  journal: "The Visual Computer"
+  year: 2025

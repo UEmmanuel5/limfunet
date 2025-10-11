@@ -1,0 +1,21 @@
+NOTICE: Review-Only Access — Not Yet Open Source
+================================================
+
+This repository contains the implementation of **LimFUNet** as part of an unpublished manuscript
+submitted for peer review. The code is shared **solely for review and academic verification**.
+
+Copyright (c) 2025 Emmanuel U. Ugwu and contributors
+
+All rights reserved. Redistribution, modification, copying, or reuse of any portion of this code,
+in whole or in part, is **strictly prohibited** until formal publication of the corresponding paper.
+
+Upon acceptance and public release, this repository will be relicensed under the **MIT License**,
+and a permanent DOI will be provided through Zenodo.
+
+You may view, run, and examine the code for the purposes of reviewing the manuscript only.
+
+Citation reference (pre-publication):
+  Ugwu, E.U., Zhang, X., Tesfay, S.G., & Mehmood, M.H. (2025).
+  "LimFUNet: SE-Enhanced Ghost U-Net for Real-Time Fire Segmentation."
+
+Date of authorship proof: 2025-10-11
