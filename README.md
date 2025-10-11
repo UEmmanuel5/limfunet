@@ -1,14 +1,12 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326197.svg)](https://doi.org/10.5281/zenodo.17326197)
+[![License](https://img.shields.io/badge/License-INSERT--LICENSE-blue.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326783.svg)](https://doi.org/10.5281/zenodo.17326783)
+
 # LimFUNet: SE-Enhanced Ghost U-Net for Real-time Fire Segmentation
 
 > **This repository contains the official code for the manuscript:**
 > *Enhancing Real-time Fire Segmentation: LimFUNet with SE-Enhanced Ghost Convolutions for Edge Computing Applications*
 > **This code is directly related to the submitted manuscript. Please cite the paper and this repository.**
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326197.svg)](https://doi.org/10.5281/zenodo.17326197)
-[![License](https://img.shields.io/badge/License-INSERT--LICENSE-blue.svg)](LICENSE)
-
-Pretrained LimFUNet weights are available on Zenodo:
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326783.svg)](https://doi.org/10.5281/zenodo.17326783)
 
 ---
 
