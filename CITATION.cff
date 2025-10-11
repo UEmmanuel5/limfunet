@@ -2,10 +2,10 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it and the associated manuscript."
 title: "LimFUNet: SE-Enhanced Ghost U-Net for Real-time Fire Segmentation"
 version: "1.0.0"
-doi: INSERT_CODE_DOI                 # e.g., 10.5281/zenodo.1234567  (release DOI)
+doi: 10.5281/zenodo.17326197
 identifiers:
   - type: doi
-    value: INSERT_CONCEPT_DOI        # Zenodo concept DOI (persistent across versions)
+    value: 10.5281/zenodo.17326196
 authors:
   - family-names: Ugwu
     given-names: Emmanuel U.
@@ -32,8 +32,8 @@ date-released: 2025-10-11
 
 related-identifiers:
   - type: doi
-    value: INSERT_WEIGHTS_DOI
-    description: "Pretrained weights for LimFUNet (mini, mid, and large variants)"
+    value: 10.5281/zenodo.17326782
+    description: "Pretrained weights for LimFUNet (including mini, mid, and large variants)"
     relation-type: isSupplementTo
 
 preferred-citation:

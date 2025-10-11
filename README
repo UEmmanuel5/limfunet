@@ -4,8 +4,11 @@
 > *Enhancing Real-time Fire Segmentation: LimFUNet with SE-Enhanced Ghost Convolutions for Edge Computing Applications*
 > **This code is directly related to the submitted manuscript. Please cite the paper and this repository.**
 
-[![DOI (code)](https://zenodo.org/badge/DOI/INSERT_CODE_DOI.svg)](https://doi.org/INSERT_CODE_DOI)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326197.svg)](https://doi.org/10.5281/zenodo.17326197)
 [![License](https://img.shields.io/badge/License-INSERT--LICENSE-blue.svg)](LICENSE)
+
+Pretrained LimFUNet weights are available on Zenodo:
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326783.svg)](https://doi.org/10.5281/zenodo.17326783)
 
 ---
 
@@ -263,7 +266,7 @@ We also show the composite heatmap from aggregating predictions across all G var
 ## 🧩 Reproducibility Checklist
 
 * [x] **Code availability:** Full training, inference, and benchmarking scripts provided in this repository (`train.py`, `benchmark.py`, `test_*`).
-* [x] **Model weights:** Pretrained LimFUNet variants released on Zenodo ([DOI link](https://doi.org/INSERT_WEIGHTS_DOI)).
+* [x] **Model weights:** Pretrained LimFUNet variants released on Zenodo ([DOI link](https://zenodo.org/records/17326783)).
 * [x] **Environment:** Reproducible via `requirements.txt` and `environment.yml`.
 * [x] **Random seeds:** TensorFlow and NumPy seeds fixed where relevant.
 * [x] **Data splits:** Follow the structure in `data/` (`images_prepped_train`, `annotations_prepped_train`, etc.).
@@ -295,8 +298,8 @@ We also show the composite heatmap from aggregating predictions across all G var
   title        = {LimFUNet: SE-Enhanced Ghost U-Net for Real-time Fire Segmentation},
   year         = {2025},
   publisher    = {Zenodo},
-  doi          = {INSERT_CODE_DOI},
-  url          = {https://doi.org/INSERT_CODE_DOI}
+  doi          = {10.5281/zenodo.17326197},
+  url          = {https://doi.org/10.5281/zenodo.17326197}
 }
 ```
 
@@ -308,11 +311,13 @@ We also show the composite heatmap from aggregating predictions across all G var
   author       = {Ugwu, Emmanuel U.},
   year         = {2025},
   publisher    = {Zenodo},
-  version      = {1.0},
-  doi          = {INSERT_WEIGHTS_DOI},
-  url          = {https://doi.org/INSERT_WEIGHTS_DOI},
-  note         = {Contains pretrained LimFUNet weights (mini, mid, large variants) corresponding to the architectures described in the LimFUNet repository.}
+  version      = {v1.0.0},
+  doi          = {10.5281/zenodo.17326783},
+  url          = {https://doi.org/10.5281/zenodo.17326783},
+  note         = {Contains pretrained LimFUNet weights (mini, mid, and large variants) 
+                corresponding to the architectures described in the LimFUNet repository.}
 }
+
 
 ```
 
