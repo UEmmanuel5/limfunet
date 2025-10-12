@@ -7,9 +7,9 @@ submitted for peer review. The code is shared solely for review and academic ver
 Copyright (c) 2025 Emmanuel U. Ugwu and contributors
 
 All rights reserved. Redistribution, modification, copying, or reuse of any portion of this code,
-in whole or in part, is **strictly prohibited** until formal publication of the corresponding paper.
+in whole or in part, is strictly prohibited until formal publication of the corresponding paper.
 
-Upon acceptance and public release, this repository will be relicensed under the **MIT License**,
+Upon acceptance and public release, this repository will be relicensed under the MIT License,
 and a permanent DOI will be provided through Zenodo.
 
 You may view, run, and examine the code for the purposes of reviewing the manuscript only.
