@@ -1,19 +1,17 @@
-import os, cv2, numpy as np, tensorflow as tf
-from keras_segmentation.models.unet import limfunet
+import os, cv2, numpy as np
 
-# ---------- GPU config ----------
-gpus = tf.config.experimental.list_physical_devices("GPU")
-if gpus:
-    try: tf.config.experimental.set_memory_growth(gpus[0], True)
-    except RuntimeError: pass
-
-# ---------- Config ----------
+# ---- Config ----
 INPUT_IMAGES = [
-    "/path/to/img1.jpg",
-    "/path/to/img2.jpg",
-    "/path/to/img3.jpg",
+    "/path/to/mask1.png",
+    "/path/to/mask2.png",
+    "/path/to/mask3.png",
+    "/path/to/mask4.png",
+    "/path/to/mask5.png",
+    "/path/to/mask6.png",
+    "/path/to/mask7.png",
+    "/path/to/mask8.png",
 ]
-OUTPUT_DIR = "results/diag_viz/output"
+OUTPUT_DIR = "/path/to/output"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # List all variant weights to aggregate
@@ -28,38 +26,71 @@ MODELS = [
     {"G": 256, "weights": "/path/to/model256.h5"},
 ]
 
-INP_H, INP_W = 416, 608
 
-# ---------- Load once for speed ----------
-loaded = []
-for m in MODELS:
-    model = limfunet(n_classes=2, input_height=INP_H, input_width=INP_W, G=m["G"])
-    model.load_weights(m["weights"])
-    loaded.append((m["G"], model))
 
-# ---------- Run ----------
-for img_path in INPUT_IMAGES:
-    img_name = os.path.splitext(os.path.basename(img_path))[0]
-    img = cv2.imread(img_path)
-    if img is None:
-        print(f"Skip unreadable: {img_path}")
+# ---- Parameters ----
+BIN_THRESH = 127            # >127 => foreground
+VOTE_THRESHOLD = 0.50       # final decision majority
+AUTO_RESIZE_TO_FIRST = True
+
+# ---- Load, align, accumulate ----
+target_shape = None
+acc_votes = None        
+acc_soft = None 
+saved = 0
+
+for p in INPUT_IMAGES:
+    m = cv2.imread(p, cv2.IMREAD_UNCHANGED)
+    if m is None:
+        print(f"Skip unreadable: {p}")
         continue
-    H, W = img.shape[:2]
+    if m.ndim == 3:
+        m = cv2.cvtColor(m, cv2.COLOR_BGR2GRAY)
 
-    acc = None
-    for G, model in loaded:
-        classmap = model.predict_segmentation(
-            inp=img_path, prediction_width=W, prediction_height=H
-        )
-        m = (classmap == 1).astype(np.float32)
-        acc = m if acc is None else acc + m
+    if target_shape is None:
+        target_shape = m.shape
+        H, W = target_shape
+        acc_votes = np.zeros((H, W), dtype=np.uint16)
+        acc_soft  = np.zeros((H, W), dtype=np.float32)
+    elif m.shape != target_shape:
+        if AUTO_RESIZE_TO_FIRST:
+            m = cv2.resize(m, (target_shape[1], target_shape[0]), interpolation=cv2.INTER_NEAREST)
+        else:
+            raise ValueError(f"Size mismatch: {p} has {m.shape}, expected {target_shape}")
 
-    avg = (acc / len(loaded))
-    gray = (avg * 255).astype(np.uint8)
-    color = cv2.applyColorMap(gray, cv2.COLORMAP_JET)
 
-    out_gray = os.path.join(OUTPUT_DIR, f"{img_name}_aggregated.png")
-    out_color = os.path.join(OUTPUT_DIR, f"{img_name}_aggregated_color.png")
-    cv2.imwrite(out_gray, gray)
-    cv2.imwrite(out_color, color)
-    print(f"Wrote: {out_gray} ; {out_color}")
+    bw = np.where(m > BIN_THRESH, 255, 0).astype(np.uint8)
+    base = os.path.splitext(os.path.basename(p))[0]
+    cv2.imwrite(os.path.join(OUTPUT_DIR, f"{base}_bw.png"), bw)
+
+    # votes for final decision
+    acc_votes += (bw // 255).astype(np.uint16)
+
+    # soft for agreement strength (normalize robustly)
+    m_max = float(m.max())
+    if m_max <= 1.0:
+        soft = m.astype(np.float32)              # already 0/1 labels
+    else:
+        soft = m.astype(np.float32) / 255.0      # 0..255 -> 0..1
+    acc_soft += np.clip(soft, 0.0, 1.0)
+
+    saved += 1
+
+if saved == 0:
+    raise RuntimeError("No readable input images.")
+
+scene = os.path.basename(os.path.dirname(INPUT_IMAGES[0])) or "ensemble"
+
+# ---- Agreement strength----
+agree_01 = acc_soft / float(saved)               # 0..1 frequency
+agree_255 = (agree_01 * 255.0).round().astype(np.uint8)
+agree_path = os.path.join(OUTPUT_DIR, f"{scene}_agreement_strength.png")
+cv2.imwrite(agree_path, agree_255)
+
+# ---- Final decision----
+k = int(np.ceil(VOTE_THRESHOLD * saved))
+final_bw = np.where(acc_votes >= k, 255, 0).astype(np.uint8)
+final_path = os.path.join(OUTPUT_DIR, f"{scene}_final_decision_bw.png")
+cv2.imwrite(final_path, final_bw)
+
+print(f"Saved per-model masks, agreement: {agree_path}, final: {final_path}")
