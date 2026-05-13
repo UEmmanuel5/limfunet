@@ -1,72 +1,87 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326197.svg)](https://doi.org/10.5281/zenodo.17326197)
-[![License](https://img.shields.io/badge/License-INSERT--LICENSE-blue.svg)](LICENSE)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326783.svg)](https://doi.org/10.5281/zenodo.17326783)
+[![Code DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326197.svg)](https://doi.org/10.5281/zenodo.17326197)
+[![Weights DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17326783.svg)](https://doi.org/10.5281/zenodo.17326783)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
-# LimFUNet: SE-Enhanced Ghost U-Net for Real-time Fire Segmentation
+# LimFUNet: SE-Enhanced Ghost U-Net for Real-Time Fire Segmentation
 
-> **This repository contains the official code for the manuscript:**
-> *Enhancing Real-time Fire Segmentation: LimFUNet with SE-Enhanced Ghost Convolutions for Edge Computing Applications*
-> **This code is directly related to the submitted manuscript. Please cite the paper and this repository.**
+This repository contains the official implementation of the manuscript:
+
+**Enhancing Real-time Fire Segmentation: LimFUNet with SE-Enhanced Ghost Convolutions for Edge Computing Applications**
+
+LimFUNet is an ultra-lightweight U-Net-inspired model for binary fire segmentation. It combines Ghost feature generation, Squeeze-and-Excitation attention, skip-connected decoding, and constant-width feature propagation to produce compact fire segmentation models suitable for resource-constrained inference.
+
+Please cite the manuscript, code repository, and released weights if this work is useful for your research.
 
 ---
 
 ## Overview
-**Model Architecture**
+
+### Model architecture
+
 <p align="center">
   <img src="results/Overview/modelarchitecture.png"
        alt="LimFUNet architecture"
        height="400" style="margin:4px;">
 </p>
 
-**Proposed workflow**
+### Proposed fire-monitoring workflow
+
 <p align="center">
   <img src="results/Overview/proposed_flow.png"
-       alt="Proposed pipeline flow"
+       alt="Proposed fire-monitoring workflow"
        height="400" style="margin:4px;">
 </p>
 
+LimFUNet is designed for real-time binary fire segmentation under strict model-size and runtime constraints.
 
-
-LimFUNet is a lightweight U-Net enhancement for binary fire segmentation. It keeps a constant channel width and combines **Ghost** convolutions with **SE** attention to achieve high mIoU with very small parameter count and real-time speed.
-
-* Parameters: **19,612** (~0.35 MB)
-* Input: **416×608**
-* Attention: **SE**
-* Activation: **LeakyReLU**
-* Ghost ratio: **r = 2.0**
-* Use case: Real-time fire segmentation on GPUs and edge devices
+| Property | Default setting |
+|---|---|
+| Input size | `416 × 608` |
+| Channel width | `G = 32` |
+| Ghost ratio | `r = 2.0` |
+| Attention module | Squeeze-and-Excitation |
+| Activation | LeakyReLU |
+| Parameters | `19,612` |
+| Model size | approximately `0.35 MB` |
+| Task | Binary fire segmentation |
 
 ---
 
-## Repository layout
+## Repository Layout
 
-```
+```text
 limfunet/
   keras_segmentation/
     models/
-      limfunet.py      # encoder (SE-Ghost blocks, constant G, ratio r)
-      unet.py          # decoder (DWConv+PWConv up blocks, final head)
-  train.py             # training entrypoint
-  benchmark.py         # quantitative metrics + FLOPs + rough FPS
-  test_single.py       # single-image segmentation to mask
-  test_multiple.py     # batch image segmentation to masks
-  test_video.py        # video overlay + mask, FFmpeg writer
-  trained_weights/     # example weights: mini/mid/large (G variants)
-  results/             # figures, plots, diagnostic maps, GIFs (GPU/CPU)
-```
+      limfunet.py       # LimFUNet encoder with SE-Ghost blocks
+      unet.py           # LimFUNet decoder and final segmentation head
 
-> **Important:** keep **G** and **GHOST_RATIO r** consistent between encoder (`limfunet.py`) and decoder (`unet.py`), and use the same **input height/width** everywhere.
+  train.py              # Training entry point
+  benchmark.py          # Metrics, parameters, MFLOPs, MAC, and FPS evaluation
+  test_single.py        # Single-image inference
+  test_multiple.py      # Batch image inference
+  test_video.py         # Video inference with mask and overlay output
+  agg_diag.py           # Aggregation diagnostics across G variants
+
+  trained_weights/      # Released pretrained weights
+  results/              # Figures, plots, diagnostic maps, GIFs, and examples
+  data/README.md        # Dataset download notes and recommended structure
+````
+
+> **Important:** the values of `G`, `GHOST_RATIO`, and the input resolution must match between the model definition, training script, inference script, and checkpoint.
 
 ---
 
 ## Installation
-Use either of the two below to install the necessary packages.
 
-### Option A: pip + venv
+Clone the repository and install the required packages using either `venv` or `conda`.
+
+### Option A: pip and venv
 
 ```bash
 cd limfunet
-python -m venv .venv && source .venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -78,9 +93,11 @@ conda env create -f environment.yml
 conda activate limfunet
 ```
 
-## Training
+`ffmpeg` is required for video output generation.
 
-Create an output folder for checkpoints and weights, then run:
+---
+
+## Training
 
 ```bash
 python train.py \
@@ -93,27 +110,33 @@ python train.py \
   --epochs 50
 ```
 
-The script prints a model summary and starts training. End-of-epoch metrics are reported. Final weights are written to `--trained_weights`.
+The script prints the model summary, trains the model, reports end-of-epoch metrics, and saves the final weights to `--trained_weights`.
+
+For reproducible evaluation, use the released checkpoint with the same preprocessing, input size, model configuration, and validation split used in the manuscript.
 
 ---
 
 ## Benchmarking
 
-`benchmark.py` evaluates accuracy metrics, counts params, estimates MFLOPs, and computes a **rough** per-image FPS (use only as a coarse indicator).
+`benchmark.py` evaluates segmentation metrics and model efficiency indicators, including parameter count, model size, MFLOPs, and memory access cost (MAC).
 
-Configure the checkpoints in the `CHECKPOINTS` dict and run:
+Configure the model paths in the `CHECKPOINTS` dictionary, then run:
 
 ```bash
 python benchmark.py
 ```
 
-A CSV called `final_benchmark.csv` is written. **Ignore the FPS if you need precise real-time throughput**; it is a quick estimate.
+The benchmark output is saved as:
+
+```text
+final_benchmark.csv
+```
 
 ---
 
 ## Inference
 
-### Single image → mask
+### Single image
 
 ```bash
 python test_single.py \
@@ -123,7 +146,7 @@ python test_single.py \
   --height 416 --width 608
 ```
 
-### Multiple images → masks
+### Multiple images
 
 ```bash
 python test_multiple.py \
@@ -134,7 +157,7 @@ python test_multiple.py \
   --height 416 --width 608
 ```
 
-### Video → green overlay + BW mask (FFmpeg)
+### Video inference
 
 ```bash
 python test_video.py \
@@ -146,187 +169,251 @@ python test_video.py \
   --alpha 0.4
 ```
 
-First frames are saved as debug PNGs alongside outputs. Requires `ffmpeg` in `PATH`.
+The video script writes a green fire-region overlay and a binary mask video. Debug frames are also saved alongside the output files.
 
 ---
 
-## Model internals (where to look)
+## Aggregation Diagnostics
 
-* **Encoder:** `limfunet/keras_segmentation/models/limfunet.py`
-  Defines `se_block`, `ghost_block`, and `limfunet_encoder(...)`.
-  Keep `G` and `GHOST_RATIO` fixed across the network.
+LimFUNet includes a diagnostic tool that aggregates predictions from multiple channel-width variants. This is useful for inspecting how different values of `G` respond to fire regions, boundaries, glare, and uncertain pixels.
 
-* **Decoder:** `limfunet/keras_segmentation/models/unet.py`
-  Defines `limfunet_decoder(...)` and `limfunet(...)` using depthwise + pointwise up blocks and the final `Conv2D` head.
+### Image diagnostic
+
+```bash
+python agg_diag.py \
+  --mode images \
+  --image "/path/to/image.png" \
+  --output_dir results/diag_image \
+  --input_height 416 \
+  --input_width 608 \
+  --device gpu \
+  --load_mode full \
+  --model 2="/path/to/model2.h5" \
+  --model 4="/path/to/model4.h5" \
+  --model 8="/path/to/model8.h5" \
+  --model 16="/path/to/model16.h5" \
+  --model 32="/path/to/model32.h5" \
+  --model 64="/path/to/model64.h5" \
+  --model 128="/path/to/model128.h5" \
+  --model 256="/path/to/model256.h5" \
+  --overlay \
+  --save_model_masks
+```
+
+### Video diagnostic
+
+```bash
+python agg_diag.py \
+  --mode videos \
+  --video "/path/to/video.avi" \
+  --output_dir results/diag_video \
+  --input_height 416 \
+  --input_width 608 \
+  --device gpu \
+  --load_mode full \
+  --model 2="/path/to/model2.h5" \
+  --model 4="/path/to/model4.h5" \
+  --model 8="/path/to/model8.h5" \
+  --model 16="/path/to/model16.h5" \
+  --model 32="/path/to/model32.h5" \
+  --model 64="/path/to/model64.h5" \
+  --model 128="/path/to/model128.h5" \
+  --model 256="/path/to/model256.h5" \
+  --overlay
+```
 
 ---
 
-## Pretrained weights
+## Model Internals
 
-* Mini / Mid / Large variants (and other variants ( other `G`)): [`trained_weights/`](trained_weights/)
+### Encoder
 
-> Note: when benchmarking multiple models together, architectures must match. If `G` or `r` differ, run separate benchmarks or modify the script accordingly.
+```text
+limfunet/keras_segmentation/models/limfunet.py
+```
+
+Defines the SE block, Ghost block, and LimFUNet encoder.
+
+### Decoder
+
+```text
+limfunet/keras_segmentation/models/unet.py
+```
+
+Defines the LimFUNet decoder, depthwise-pointwise upsampling blocks, and final segmentation head.
+
+The default LimFUNet configuration uses `G = 32` and `r = 2.0`. If these values are changed, the checkpoint and architecture must be changed consistently.
+
+---
+
+## Pretrained Weights
+
+Pretrained LimFUNet weights are provided in:
+
+```text
+trained_weights/
+```
+
+The released weights include mini, mid, large, and other `G`-based variants.
+
+When benchmarking or running inference, make sure the model configuration matches the checkpoint. A checkpoint trained with one value of `G` or `r` cannot be loaded into a model built with a different configuration.
+
+
+## Reproducing the Reported LimFUNet Result
+
+The main LimFUNet result reported in the manuscript corresponds to the released checkpoint in `trained_weights/`.
+
+To reproduce the checkpoint evaluation, use the fixed validation split and the same preprocessing settings:
+
+- input size: 416 × 608
+- channel width: G = 32
+- ghost ratio: r = 2.0
+- attention: SE
+- activation: LeakyReLU
+
+Training from scratch may lead to small variations because of random initialization, data ordering, augmentation, and backend nondeterminism. For exact comparison, evaluate the released checkpoint.
 
 ---
 
 ## Datasets
 
-Please obtain datasets from their official sources and respect licenses:
+Please download the datasets from their official sources and respect their licenses.
 
-* **Khan et al.** DOI: 10.1109/TITS.2022.3203868
-  Link: [https://drive.google.com/drive/folders/1Xfq7zLwIwJ4vPx50G-k7j2-ofh1bj3fx](https://drive.google.com/drive/folders/1Xfq7zLwIwJ4vPx50G-k7j2-ofh1bj3fx)
+### Khan et al. fire segmentation dataset
 
-* **Roboflow Fire Segmentation**
-  [https://universe.roboflow.com/firesegpart1/fire-seg-part1/dataset/21](https://universe.roboflow.com/firesegpart1/fire-seg-part1/dataset/21)
+DOI: `10.1109/TITS.2022.3203868`
 
-* **Foggia (MIVIA) Fire dataset** DOI: 10.1109/TCSVT.2015.2392531
-  [https://mivia.unisa.it/datasets/video-analysis-datasets/fire-detection-dataset/](https://mivia.unisa.it/datasets/video-analysis-datasets/fire-detection-dataset/)
+[Dataset link](https://drive.google.com/drive/folders/1Xfq7zLwIwJ4vPx50G-k7j2-ofh1bj3fx)
 
-* **BurnedAreaUAV (BAUAV)** DOI: [https://doi.org/10.1016/j.isprsjprs.2023.07.002](https://doi.org/10.1016/j.isprsjprs.2023.07.002)
-  [https://zenodo.org/records/7944963](https://zenodo.org/records/7944963)
+### Roboflow Fire Segmentation Dataset
 
-* **FiSmo** paper and sources
-  Paper: [https://www.researchgate.net/publication/322365857](https://www.researchgate.net/publication/322365857)
-  GitHub: [https://github.com/mtcazzolato/dsw2017](https://github.com/mtcazzolato/dsw2017)
-  Example video (fireVid_017): [https://drive.google.com/drive/folders/1SoYViOABT_Pt-rwrU7vPrgM7ts09D9tu?usp=sharing](https://drive.google.com/drive/folders/1SoYViOABT_Pt-rwrU7vPrgM7ts09D9tu?usp=sharing)
+[Roboflow dataset link](https://universe.roboflow.com/firesegpart1/fire-seg-part1/dataset/21)
 
-We provide **download scripts** and recommended directory structure in [`data/README.md`](data/README.md).
+### Foggia MIVIA Fire Detection Dataset
 
----
+DOI: `10.1109/TCSVT.2015.2392531`
 
-## Results Summary
+[MIVIA dataset link](https://mivia.unisa.it/datasets/video-analysis-datasets/fire-detection-dataset/)
 
-We report strong efficiency–accuracy trade-offs on all evaluated datasets with **G = 32**, **r = 2.0**, and **SE enabled**, using input resolution **416 × 608**.  
-Full metric tables and qualitative comparisons are included in the manuscript and in the [`results/`](results/) directory.
+### FiSmo
 
-**Results on 5 Foggia videos**
-<table> <thead> <tr> <th>Model</th> <th>MFLOPs / Image</th> <th>fire01</th> <th>fire03</th> <th>fire04</th> <th>fire08</th> <th>fire13</th> <th>Avg FPS</th> </tr> </thead> <tbody> <tr> <td><strong>LimFUNet</strong></td> <td><strong>3,243.46</strong></td> <td><strong>23.46</strong></td> <td><strong>25.88</strong></td> <td><strong>24.88</strong></td> <td><strong>24.77</strong></td> <td><strong>21.92</strong></td> <td><strong>24.18</strong></td> </tr> <tr> <td>MobileNetV2</td> <td>5,140.91</td> <td><u>19.88</u></td> <td><u>19.04</u></td> <td><u>20.37</u></td> <td><u>21.63</u></td> <td><u>19.20</u></td> <td><u>20.02</u></td> </tr> <tr> <td>MobileNetV3</td> <td><u>4,693.91</u></td> <td>16.82</td> <td>18.65</td> <td>16.84</td> <td>18.24</td> <td>17.29</td> <td>17.57</td> </tr> <tr> <td>LinkNet</td> <td>8,809.26</td> <td>11.05</td> <td>11.56</td> <td>10.75</td> <td>11.04</td> <td>10.33</td> <td>10.95</td> </tr> <tr> <td>FPN</td> <td><em>102,205.71</em></td> <td><em>8.19</em></td> <td><em>8.16</em></td> <td><em>8.54</em></td> <td><em>8.44</em></td> <td><em>8.49</em></td> <td><em>8.36</em></td> </tr> </tbody> </table>
+[Paper](https://www.researchgate.net/publication/322365857)
+[GitHub](https://github.com/mtcazzolato/dsw2017)
+[Example video: fireVid_017](https://drive.google.com/drive/folders/1SoYViOABT_Pt-rwrU7vPrgM7ts09D9tu?usp=sharing)
+
+Dataset download notes and recommended folder structure are provided in:
+
+```text
+data/README.md
+```
 
 ---
 
 ## Diagnostic Visualizations
 
-- **Variant aggregation map:** Scripts and examples under [`results/`](results/) aggregate predictions from multiple `G` variants into a unified interpretive heatmap for each input.
-- **GPU vs CPU GIFs:** Example GIFs showing real-time inference and measured FPS are located in [`results/`](results/).  
-  These visualizations were generated using `test_video.py`, `test_video.py`, and `test_video.py` (For Black and white / colored mask of a single variant) or `agg_img_variants.py`, and `agg_vid_variants.py` (For black and white mask / colored mask, aggregated from multiple variants).
+### Aggregated mask and overlay
 
+<p align="center">
+  <img src="results/gif/vid_agg.gif"
+       alt="Aggregated mask and overlay"
+       width="80%">
+</p>
 
-**Visualizations**
-GPU B&W mask vs GPU overlay (GIFs)
-<p align="center"> <img src="results/FiSmo&BAUAV/fire17GPUmask.gif" alt="GPU FPS overlay" width="48%"> <img src="results/FiSmo&BAUAV/fire17GPUoverlay.gif" alt="CPU FPS overlay" width="48%"> </p>
+### Image-level aggregation examples
 
-**Diagnostic aggregation**
-
-We also show the composite heatmap from aggregating predictions across all G variants (G=2…256) and its video version.
-
-<!-- Row 1 -->
 <p align="center">
   <img src="results/diag_viz/fire007_overlay_avg.png"
-       alt="Aggregated overlay (sample fire007)"
+       alt="Aggregated overlay sample fire007"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
   <img src="results/diag_viz/fire057_overlay_avg.png"
-       alt="Aggregated overlay (sample fire057)"
+       alt="Aggregated overlay sample fire057"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
   <img src="results/diag_viz/fire097_overlay_avg.png"
-       alt="Aggregated overlay (sample fire097)"
+       alt="Aggregated overlay sample fire097"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
 </p>
 
-<!-- Row 2 -->
+### Grayscale and colorized diagnostic maps
+
 <p align="center">
   <img src="results/diag_viz/output/fig1a.jpg"
-       alt="Input frame for diagnostic aggregation"
+       alt="Input frame"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
   <img src="results/diag_viz/output/output_bw/fig1a_aggregated.png"
-       alt="Aggregated diagnostic heatmap (grayscale)"
+       alt="Aggregated grayscale heatmap"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
   <img src="results/diag_viz/output/output_color/fig1a_aggregated_color.png"
-       alt="Aggregated diagnostic heatmap (colorized)"
+       alt="Aggregated color heatmap"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
 </p>
 
-<!-- Row 2 -->
+### Video-level aggregation examples
+
 <p align="center">
   <img src="results/diag_viz/real_vid.gif"
-       alt="Input video for diagnostic aggregation"
+       alt="Input video"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
   <img src="results/diag_viz/B&W.gif"
-       alt="Aggregated diagnostic heatmap (grayscale video)"
+       alt="Aggregated grayscale video"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
   <img src="results/diag_viz/color.gif"
-       alt="Aggregated diagnostic heatmap (colorized video)"
+       alt="Aggregated colorized video"
        width="32%" height="200" style="object-fit:cover; margin:4px;">
 </p>
 
+These visualizations were generated using `test_video.py` for single-model video inference and `agg_diag.py` for multi-variant aggregation diagnostics.
 
 ---
 
-## 🧩 Reproducibility Checklist
+## Citation
 
-* [x] **Code availability:** Full training, inference, and benchmarking scripts provided in this repository (`train.py`, `benchmark.py`, `test_*`).
-* [x] **Model weights:** Pretrained LimFUNet variants released on Zenodo ([DOI link](https://zenodo.org/records/17326783)).
-* [x] **Environment:** Reproducible via `requirements.txt` and `environment.yml`.
-* [x] **Random seeds:** TensorFlow and NumPy seeds fixed where relevant.
-* [x] **Data splits:** Follow the structure in `data/` (`images_prepped_train`, `annotations_prepped_train`, etc.).
-* [x] **Hardware details:** Experiments conducted on NVIDIA GeForce RTX 4090 (CUDA 11.2, cuDNN 8.1).
-* [x] **Evaluation:** Benchmark and metrics computed via `keras_segmentation.predict.evaluate`.
-* [x] **Visualization:** Diagnostic and performance visualizations.
-* [x] **Citation:** Please cite using the repository’s `CITATION.cff` or BibTeX entry.
+### Manuscript
 
----
-
-## How to cite
-
-**Manuscript:**
-
-```
+```bibtex
 @article{Ugwu2025LimFUNet,
-  title={Enhancing Real-time Fire Segmentation: LimFUNet with SE-Enhanced Ghost Convolutions for Edge Computing Applications},
-  author={Ugwu, Emmanuel U. and Zhang, Xinming and Tesfay, Semere G. and Mehmood, Muhammad Hamza},
-  journal={The Visual Computer},
-  year={2025}
+  title   = {Enhancing Real-time Fire Segmentation: LimFUNet with SE-Enhanced Ghost Convolutions for Edge Computing Applications},
+  author  = {Ugwu, Emmanuel U. and Zhang, Xinming and Tesfay, Semere G. and Mehmood, Muhammad Hamza},
+  journal = {The Visual Computer},
+  year    = {2025}
 }
 ```
 
-**Code (for this repo):**
+### Code
 
-```
+```bibtex
 @software{LimFUNet_Code,
-  author       = {Ugwu, Emmanuel U. and Zhang, Xinming and Tesfay, Semere G. and Mehmood, Muhammad Hamza},
-  title        = {LimFUNet: SE-Enhanced Ghost U-Net for Real-time Fire Segmentation},
-  year         = {2025},
-  publisher    = {Zenodo},
-  doi          = {10.5281/zenodo.17326197},
-  url          = {https://doi.org/10.5281/zenodo.17326197}
+  author    = {Ugwu, Emmanuel U. and Zhang, Xinming and Tesfay, Semere G. and Mehmood, Muhammad Hamza},
+  title     = {LimFUNet: SE-Enhanced Ghost U-Net for Real-time Fire Segmentation},
+  year      = {2025},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.17326197},
+  url       = {https://doi.org/10.5281/zenodo.17326197}
 }
 ```
 
-**weights:**
+### Pretrained weights
 
-```
-@dataset{ugwu2025_limfunet_weights,
-  title        = {LimFUNet: Pretrained Weights},
-  author       = {Ugwu, Emmanuel U.},
-  year         = {2025},
-  publisher    = {Zenodo},
-  version      = {v1.0.0},
-  doi          = {10.5281/zenodo.17326783},
-  url          = {https://doi.org/10.5281/zenodo.17326783},
-  note         = {Contains pretrained LimFUNet weights (mini, mid, and large variants) 
-                corresponding to the architectures described in the LimFUNet repository.}
+```bibtex
+@dataset{Ugwu2025LimFUNetWeights,
+  title     = {LimFUNet: Pretrained Weights},
+  author    = {Ugwu, Emmanuel U.},
+  year      = {2025},
+  publisher = {Zenodo},
+  version   = {v1.0.0},
+  doi       = {10.5281/zenodo.17326783},
+  url       = {https://doi.org/10.5281/zenodo.17326783},
+  note      = {Pretrained LimFUNet weights for mini, mid, large, and additional channel-width variants}
 }
-
-
 ```
 
 ---
 
 ## License
 
-This work is released under **Apache-2.0** [LICENSE](LICENSE).
+This repository is released under the [Apache-2.0 License](LICENSE).
 
 ---
 
 ## Acknowledgements
 
-We thank the dataset providers and the open-source community. This repository is directly related to the manuscript submitted to *The Visual Computer*.
+We thank the dataset providers and the open-source research community. This repository is directly associated with the manuscript submitted to *The Visual Computer*.
