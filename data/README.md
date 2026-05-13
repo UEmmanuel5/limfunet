@@ -46,7 +46,6 @@ Original data obtained from:
 - **Khan et al., IEEE T-ITS 2022** – DOI: [10.1109/TITS.2022.3203868](https://doi.org/10.1109/TITS.2022.3203868)
 - **Roboflow FireSegPart1** – [https://universe.roboflow.com/firesegpart1/fire-seg-part1](https://universe.roboflow.com/firesegpart1/fire-seg-part1)
 - **Foggia et al., IEEE TCSVT 2015** – DOI: [10.1109/TCSVT.2015.2392531](https://doi.org/10.1109/TCSVT.2015.2392531)
-- **BurnedAreaUAV, ISPRS JPRS 2023** – DOI: [10.1016/j.isprsjprs.2023.07.002](https://doi.org/10.1016/j.isprsjprs.2023.07.002)
 - **FiSmo Dataset** – [https://github.com/mtcazzolato/dsw2017](https://github.com/mtcazzolato/dsw2017)
 
 For convenience, our reorganized and preprocessed dataset is hosted at:  
@@ -62,6 +61,3 @@ For convenience, our reorganized and preprocessed dataset is hosted at:
 - You may use other datasets as long as you preserve this directory pattern.
 
 ---
-
-**Maintainer:** Emmanuel U. Ugwu  
-**Date:** 2025-10-11
