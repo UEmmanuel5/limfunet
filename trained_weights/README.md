@@ -51,6 +51,3 @@ The folder contains:
 * For reviewers: these weights match the metrics reported in Table X of the paper.
 
 ---
-
-**Maintainer:** Emmanuel U. Ugwu
-**Date:** 2025-10-11
