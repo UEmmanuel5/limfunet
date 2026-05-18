@@ -107,7 +107,8 @@ python train.py \
   --validation_annotations "/path/to/Test_Annotation/Dataset/" \
   --checkpoints_path "/path/to/save/checkpoint/" \
   --trained_weights "/path/to/save/checkpoint/model.h5" \
-  --epochs 50
+  --epochs 50 \
+  --seed 0
 ```
 
 The script prints the model summary, trains the model, reports end-of-epoch metrics, and saves the final weights to `--trained_weights`.
